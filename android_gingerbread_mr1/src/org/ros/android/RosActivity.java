@@ -43,7 +43,7 @@ public abstract class RosActivity extends Activity {
   private final String notificationTicker;
   private final String notificationTitle;
 
-  private NodeMainExecutorService nodeMainExecutorService;
+  protected NodeMainExecutorService nodeMainExecutorService;
 
   private final class NodeMainExecutorServiceConnection implements ServiceConnection {
     @Override
@@ -112,7 +112,7 @@ public abstract class RosActivity extends Activity {
    */
   protected abstract void init(NodeMainExecutor nodeMainExecutor);
 
-  private void startMasterChooser() {
+  protected void startMasterChooser() {
     Preconditions.checkState(getMasterUri() == null);
     // Call this method on super to avoid triggering our precondition in the
     // overridden startActivityForResult().
