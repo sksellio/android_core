@@ -39,6 +39,7 @@ import org.ros.node.Node;
 import org.ros.node.NodeMain;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
+import android.util.Log;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -239,19 +240,23 @@ public class VirtualJoystickView extends RelativeLayout implements AnimationList
    */
   private Timer publisherTimer;
   private geometry_msgs.Twist currentVelocityCommand;
+  private String topicName;
 
   public VirtualJoystickView(Context context) {
     super(context);
     initVirtualJoystick(context);
+    topicName = "~cmd_vel";
   }
 
   public VirtualJoystickView(Context context, AttributeSet attrs) {
     super(context, attrs);
     initVirtualJoystick(context);
+    topicName = "~cmd_vel";
   }
 
   public VirtualJoystickView(Context context, AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
+    topicName = "~cmd_vel";
   }
 
   /**
@@ -915,6 +920,10 @@ public class VirtualJoystickView extends RelativeLayout implements AnimationList
     }
     return false;
   }
+  
+  public void setTopicName(String topicName) {
+    this.topicName = topicName;
+  }
 
   @Override
   public GraphName getDefaultNodeName() {
@@ -923,7 +932,8 @@ public class VirtualJoystickView extends RelativeLayout implements AnimationList
 
   @Override
   public void onStart(ConnectedNode connectedNode) {
-    publisher = connectedNode.newPublisher("~cmd_vel", geometry_msgs.Twist._TYPE);
+    publisher = connectedNode.newPublisher(topicName, geometry_msgs.Twist._TYPE);
+    currentVelocityCommand = publisher.newMessage();
     Subscriber<nav_msgs.Odometry> subscriber =
         connectedNode.newSubscriber("odom", nav_msgs.Odometry._TYPE);
     subscriber.addMessageListener(this);
@@ -933,6 +943,8 @@ public class VirtualJoystickView extends RelativeLayout implements AnimationList
       public void run() {
         if (publishVelocity) {
           publisher.publish(currentVelocityCommand);
+          Log.i("VirtualJoystickView",
+          "Publishing velocity");
         }
       }
     }, 0, 80);
